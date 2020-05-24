@@ -1,0 +1,121 @@
+import turtle       #basic graphics library
+import winsound
+
+wn = turtle.Screen()
+wn.title("Pong ")
+wn.bgcolor("black")
+wn.setup(width=800, height=600)   #window size
+wn.tracer(0)            #stops windows updating
+
+# Score
+score_a = 0
+score_b = 0
+
+# Paddle A
+paddle_a = turtle.Turtle()      #Turtle is a class
+paddle_a.speed(0)               #speed of animation
+paddle_a.shape("square")        #paddle shape
+paddle_a.color("white")         #paddle color
+paddle_a.shapesize(stretch_wid=5, stretch_len=1)    #size of paddle
+paddle_a.penup()            #a line comes if not written
+paddle_a.goto(-350, 0)       #location of paddle i.e. left side coordinates(x,y)
+
+# Paddle B
+paddle_b = turtle.Turtle()
+paddle_b.speed(0)
+paddle_b.shape("square")
+paddle_b.color("white")
+paddle_b.shapesize(stretch_wid=5, stretch_len=1)
+paddle_b.penup()
+paddle_b.goto(350, 0)
+paddle_b.dy = .3
+
+# Ball
+ball = turtle.Turtle()
+ball.speed(0)
+ball.shape("circle") #shape of ball
+ball.color("red")
+ball.penup()
+ball.goto(0, 0)         #ball location
+ball.dx = .3            #ball movement speed along x-axis in pixels
+ball.dy = .3           #ball movement speed along y-axis in pixels
+
+# Pen
+pen = turtle.Turtle()   #turtle is class
+pen.speed(0)
+pen.shape("square")
+pen.color("white")
+pen.penup()             #if we dont use it we will se a line moving
+pen.hideturtle()
+pen.goto(0, 260)
+pen.write("Human: 0  AI: 0", align="center", font=("Courier", 24, "normal"))
+
+
+# Functions
+def paddle_a_up():
+    y = paddle_a.ycor()  #ycor() return y coedinate
+    y += 90             #add 20 pixels to y coordinate (movement upward)
+    paddle_a.sety(y)    # set paddle to new location
+
+
+def paddle_a_down():
+    y = paddle_a.ycor()
+    y -= 90
+    paddle_a.sety(y)
+
+# Keyboard bindings
+wn.listen()     #listen to keyboard
+wn.onkeypress(paddle_a_up, "Up")     #"w" will move paddle a up
+wn.onkeypress(paddle_a_down, "Down")
+
+
+# Main game loop
+while True:
+    wn.update()     #update window everytime it runs
+
+    # Move the ball
+    ball.setx(ball.xcor() + ball.dx)    #xcor() givers current ball location and adds ball.dx to ball.setx
+    ball.sety(ball.ycor() + ball.dy)
+
+    # Border checking
+    # Top and bottom
+    if ball.ycor() > 290: #comparing the y coordinate of ball so that it dows not go out of screen
+        ball.sety(290)
+        ball.dy *= -1
+        winsound.PlaySound("bounce.wav", winsound.SND_ASYNC)
+
+    elif ball.ycor() < -290:
+        ball.sety(-290)
+        ball.dy *= -1
+        winsound.PlaySound("bounce.wav", winsound.SND_ASYNC)
+
+    # Left and right
+    if ball.xcor() >350: #comparing the x coordinate of ball so that it does not go out of screen
+        score_a += 1
+        pen.clear()
+        pen.write("Human: {}  AI: {}".format(score_a, score_b), align="center", font=("Courier", 24, "normal"))
+        ball.goto(0, 0)         #if ball goes out of screen wil come to this location
+        ball.dx *= -1
+
+    elif ball.xcor() < -350:
+        score_b += 1
+        pen.clear()
+        pen.write("Human: {}  AI: {}".format(score_a, score_b), align="center", font=("Courier", 24, "normal"))
+        ball.goto(0, 0)
+        ball.dx *= -1
+
+     # Paddle and ball collisions
+    if ball.xcor() < -340 and ball.ycor() < paddle_a.ycor() + 50 and ball.ycor() > paddle_a.ycor() - 50:
+        ball.dx *= -1
+        winsound.PlaySound("bounce.wav", winsound.SND_ASYNC)
+
+    elif ball.xcor() > 340 and ball.ycor() < paddle_b.ycor() + 50 and ball.ycor() > paddle_b.ycor() - 50:
+        ball.dx *= -1
+        winsound.PlaySound("bounce.wav", winsound.SND_ASYNC)
+
+    #AI of paddle_b
+    if ball.ycor():
+        paddle_b.sety(ball.ycor() + ball.dy)
+    if score_b==5 or score_a==5:
+        exit()
+
